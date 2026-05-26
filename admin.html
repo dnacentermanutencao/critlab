@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CritLab — Administração</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d1117;--bg2:#161b22;--bg3:#1c2128;--border:rgba(255,255,255,.08);
+  --border2:rgba(255,255,255,.14);--text:#e6edf3;--text2:#8b949e;--text3:#6e7681;
+  --red:#f85149;--red-bg:rgba(248,81,73,.12);--red-border:rgba(248,81,73,.3);
+  --green:#3fb950;--green-bg:rgba(63,185,80,.12);
+  --blue:#58a6ff;--blue-bg:rgba(88,166,255,.1);
+  --amber:#e3b341;--amber-bg:rgba(227,179,65,.12);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Sans',sans-serif;
+  font-size:14px;min-height:100vh;text-transform:uppercase;}
+
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);height:56px;
+  padding:0 24px;display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:32px;height:32px;background:var(--red-bg);border:1px solid var(--red-border);
+  border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--red);font-size:16px;}
+.role-tag{font-size:10px;font-weight:700;background:var(--amber-bg);color:var(--amber);
+  border:1px solid rgba(227,179,65,.3);padding:2px 8px;border-radius:4px;letter-spacing:.5px;}
+
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 56px);}
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);padding:12px;}
+.nav-sec{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.8px;padding:10px 10px 6px;}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:6px;
+  cursor:pointer;font-size:13px;color:var(--text2);transition:all .15s;margin-bottom:2px;}
+.nav-item:hover{background:var(--bg3);color:var(--text);}
+.nav-item.active{background:var(--blue-bg);color:var(--blue);border:1px solid rgba(88,166,255,.2);}
+
+.main{overflow-y:auto;}
+.page{display:none;padding:28px;}
+.page.active{display:block;}
+.pg-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+.pg-sub{font-size:12px;color:var(--text3);margin-bottom:24px;}
+.pg-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;}
+
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:28px;}
+.scard{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px;}
+.sval{font-size:28px;font-weight:700;letter-spacing:-1px;}
+.slbl{font-size:11px;color:var(--text3);letter-spacing:.5px;margin-top:2px;}
+.sval.blue{color:var(--blue);} .sval.red{color:var(--red);}
+.sval.green{color:var(--green);} .sval.amber{color:var(--amber);}
+
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+table{width:100%;border-collapse:collapse;}
+thead tr{border-bottom:1px solid var(--border2);}
+th{padding:10px 16px;text-align:left;font-size:11px;color:var(--text3);font-weight:600;letter-spacing:.5px;}
+td{padding:11px 16px;font-size:13px;border-bottom:1px solid var(--border);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.02);}
+
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;
+  padding:2px 8px;border-radius:4px;letter-spacing:.4px;}
+.badge-green{background:var(--green-bg);color:var(--green);border:1px solid rgba(63,185,80,.3);}
+.badge-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border);}
+
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:6px;
+  font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'IBM Plex Sans',sans-serif;
+  text-transform:uppercase;transition:all .15s;letter-spacing:.3px;}
+.btn-ghost{background:var(--bg3);border:1px solid var(--border2);color:var(--text);}
+.btn-ghost:hover{border-color:var(--text3);}
+.btn-red{background:var(--red);color:#fff;} .btn-red:hover{background:#e03c34;}
+.btn-green{background:var(--green);color:#0d1117;} .btn-green:hover{background:#35a344;}
+.btn-amber{background:var(--amber);color:#0d1117;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:500;
+  display:none;align-items:center;justify-content:center;}
+.overlay.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:12px;
+  padding:28px 32px;width:100%;max-width:440px;animation:up .2s ease;}
+@keyframes up{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-size:16px;font-weight:700;margin-bottom:20px;}
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--text2);letter-spacing:.6px;margin-bottom:5px;}
+.field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;
+  padding:9px 12px;color:var(--text);font-family:'IBM Plex Sans',sans-serif;font-size:14px;
+  outline:none;transition:border-color .15s;text-transform:uppercase;}
+.field input:focus{border-color:var(--blue);}
+.modal-actions{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;}
+.merr{background:var(--red-bg);border:1px solid var(--red-border);border-radius:6px;
+  padding:8px 12px;font-size:12px;color:var(--red);margin-top:10px;display:none;}
+
+.prog{height:5px;background:var(--border2);border-radius:3px;margin-top:5px;}
+.prog-fill{height:5px;border-radius:3px;}
+.empty{text-align:center;padding:48px;color:var(--text3);}
+.mono{font-family:'IBM Plex Mono',monospace;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">⚕</div>
+    <div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="font-weight:700;font-size:15px;">CritLab</span>
+        <span class="role-tag">Administrador</span>
+      </div>
+      <div style="font-size:11px;color:var(--text3);">Controle de Resultados Críticos</div>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span style="font-size:12px;color:var(--text3);">{{ uname }}</span>
+    <button class="btn btn-ghost" onclick="logout()">⏏ Sair</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="nav-sec">Painel</div>
+    <div class="nav-item active" onclick="nav('dashboard',this)">📊 Visão Geral</div>
+    <div class="nav-item" onclick="nav('hospitals',this)">🏥 Hospitais</div>
+    <div class="nav-sec">Relatórios</div>
+    <div class="nav-item" onclick="nav('report',this)">📈 Consolidado Geral</div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="pg-title">Visão Geral</div>
+      <div class="pg-sub">Resumo consolidado de todos os hospitais</div>
+      <div class="stats">
+        <div class="scard"><div class="sval blue" id="d-hosp">—</div><div class="slbl">Hospitais ativos</div></div>
+        <div class="scard"><div class="sval blue" id="d-total">—</div><div class="slbl">Total de registros</div></div>
+        <div class="scard"><div class="sval red" id="d-pend">—</div><div class="slbl">Pendentes</div></div>
+        <div class="scard"><div class="sval amber" id="d-avg">—</div><div class="slbl">Tempo médio resposta</div></div>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th>Hospital</th><th>Total</th><th>Informados</th><th>Pendentes</th>
+            <th>Taxa</th><th>Tempo Médio</th>
+          </tr></thead>
+          <tbody id="d-tbody"><tr><td colspan="6" class="empty">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- HOSPITALS -->
+    <div class="page" id="page-hospitals">
+      <div class="pg-head">
+        <div><div class="pg-title">Hospitais Cadastrados</div>
+          <div class="pg-sub">Gerencie acessos e credenciais de cada unidade</div></div>
+        <button class="btn btn-red" onclick="openCreate()">+ Novo Hospital</button>
+      </div>
+      <div class="card">
+        <table>
+          <thead><tr>
+            <th>Hospital</th><th>Usuário</th><th>Status</th>
+            <th>Registros</th><th>Cadastrado em</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="h-tbody"><tr><td colspan="6" class="empty">Carregando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- REPORT -->
+    <div class="page" id="page-report">
+      <div class="pg-head">
+        <div><div class="pg-title">Relatório Consolidado</div>
+          <div class="pg-sub">Indicadores comparativos entre hospitais</div></div>
+        <button class="btn btn-ghost" onclick="exportCSV()">⬇ Exportar CSV</button>
+      </div>
+      <div id="report-wrap"><div class="empty">Carregando...</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL CRIAR HOSPITAL -->
+<div class="overlay" id="m-create">
+  <div class="modal">
+    <div class="modal-title">Cadastrar Novo Hospital</div>
+    <div class="field"><label>Nome do Hospital</label>
+      <input id="c-name" placeholder="Ex.: Hospital Santa Casa"></div>
+    <div class="field"><label>Usuário de Acesso</label>
+      <input id="c-user" placeholder="Ex.: santacasa"></div>
+    <div class="field"><label>Senha Inicial</label>
+      <input id="c-pw" type="password" placeholder="Mínimo 6 caracteres"></div>
+    <div class="merr" id="c-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('m-create')">Cancelar</button>
+      <button class="btn btn-green" onclick="createHospital()">✓ Cadastrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESET SENHA -->
+<div class="overlay" id="m-reset">
+  <div class="modal">
+    <div class="modal-title" id="reset-title">Redefinir Senha</div>
+    <div class="field"><label>Nova Senha</label>
+      <input id="r-pw" type="password" placeholder="Nova senha"></div>
+    <div class="merr" id="r-err"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('m-reset')">Cancelar</button>
+      <button class="btn btn-amber" onclick="doReset()">Redefinir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let resetHid = null;
+let reportCache = [];
+
+const fmtMin = v => v==null ? '—' : v<60 ? `${v} MIN` : `${(v/60).toFixed(1)} H`;
+const pct    = h => h.total>0 ? Math.round(h.informado/h.total*100) : 0;
+const pctColor = p => p>=90?'var(--green)':p>=50?'var(--amber)':'var(--red)';
+
+function nav(name, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  if(name==='dashboard') loadDashboard();
+  if(name==='hospitals') loadHospitals();
+  if(name==='report')    loadReport();
+}
+
+async function logout() {
+  await fetch('/api/logout',{method:'POST'});
+  location.href='/login';
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const data = await (await fetch('/api/admin/report')).json();
+  reportCache = data;
+  const active = data.filter(h=>h.active).length;
+  const total  = data.reduce((a,h)=>a+h.total,0);
+  const pend   = data.reduce((a,h)=>a+h.pendente,0);
+  const times  = data.filter(h=>h.avg_response_min!=null).map(h=>h.avg_response_min);
+  const avg    = times.length ? (times.reduce((a,v)=>a+v,0)/times.length).toFixed(1) : null;
+
+  document.getElementById('d-hosp').textContent  = active;
+  document.getElementById('d-total').textContent = total;
+  document.getElementById('d-pend').textContent  = pend;
+  document.getElementById('d-avg').textContent   = avg ? avg+' MIN' : '—';
+
+  document.getElementById('d-tbody').innerHTML = data.length ? data.map(h=>`
+    <tr>
+      <td><strong>${h.name}</strong></td>
+      <td class="mono" style="color:var(--blue)">${h.total}</td>
+      <td class="mono" style="color:var(--green)">${h.informado}</td>
+      <td class="mono" style="color:var(--red)">${h.pendente}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-weight:700;color:${pctColor(pct(h))}">${pct(h)}%</span>
+          <div class="prog" style="flex:1"><div class="prog-fill" style="width:${pct(h)}%;background:${pctColor(pct(h))}"></div></div>
+        </div>
+      </td>
+      <td style="color:var(--amber)">${fmtMin(h.avg_response_min)}</td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">Nenhum hospital cadastrado</td></tr>';
+}
+
+// ── Hospitals ────────────────────────────────────────────────────────
+async function loadHospitals() {
+  const data = await (await fetch('/api/admin/hospitals')).json();
+  document.getElementById('h-tbody').innerHTML = data.length ? data.map(h=>`
+    <tr>
+      <td><strong>${h.name}</strong></td>
+      <td class="mono" style="font-size:12px;color:var(--blue)">${h.username}</td>
+      <td><span class="badge ${h.active?'badge-green':'badge-red'}">${h.active?'Ativo':'Inativo'}</span></td>
+      <td style="color:var(--text2)">${h.results_count}</td>
+      <td style="font-size:12px;color:var(--text3)">${h.created_at}</td>
+      <td>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;">
+          <button class="btn btn-amber btn-sm" onclick="openReset('${h.id}','${h.name}')">🔑 Senha</button>
+          <button class="btn btn-ghost btn-sm" onclick="toggle('${h.id}')">${h.active?'⏸ Desativar':'▶ Ativar'}</button>
+          <button class="btn btn-red btn-sm" onclick="del('${h.id}','${h.name}')">✕</button>
+        </div>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="6" class="empty">Nenhum hospital cadastrado</td></tr>';
+}
+
+function openCreate() {
+  ['c-name','c-user','c-pw'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('c-err').style.display='none';
+  document.getElementById('m-create').classList.add('open');
+}
+
+async function createHospital() {
+  const name=document.getElementById('c-name').value.trim();
+  const user=document.getElementById('c-user').value.trim();
+  const pw  =document.getElementById('c-pw').value.trim();
+  const err =document.getElementById('c-err');
+  err.style.display='none';
+  const res=await fetch('/api/admin/hospitals',{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({name,username:user,password:pw})});
+  const data=await res.json();
+  if(res.ok){closeModal('m-create');loadHospitals();loadDashboard();}
+  else{err.textContent=data.error;err.style.display='block';}
+}
+
+async function toggle(hid) {
+  await fetch(`/api/admin/hospitals/${hid}/toggle`,{method:'POST'});
+  loadHospitals(); loadDashboard();
+}
+
+async function del(hid,name) {
+  if(!confirm(`EXCLUIR O HOSPITAL "${name}"?\n\nTodos os registros serão permanentemente apagados.`)) return;
+  await fetch(`/api/admin/hospitals/${hid}`,{method:'DELETE'});
+  loadHospitals(); loadDashboard();
+}
+
+function openReset(hid,name) {
+  resetHid=hid;
+  document.getElementById('reset-title').textContent=`REDEFINIR SENHA — ${name}`;
+  document.getElementById('r-pw').value='';
+  document.getElementById('r-err').style.display='none';
+  document.getElementById('m-reset').classList.add('open');
+}
+
+async function doReset() {
+  const pw=document.getElementById('r-pw').value.trim();
+  const err=document.getElementById('r-err');
+  if(!pw){err.textContent='Informe a nova senha.';err.style.display='block';return;}
+  const res=await fetch(`/api/admin/hospitals/${resetHid}/password`,{method:'POST',
+    headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
+  if(res.ok){closeModal('m-reset');alert('Senha redefinida com sucesso.');}
+  else{const d=await res.json();err.textContent=d.error;err.style.display='block';}
+}
+
+// ── Report ────────────────────────────────────────────────────────────
+async function loadReport() {
+  const data=reportCache.length?reportCache:await(await fetch('/api/admin/report')).json();
+  reportCache=data;
+  const wrap=document.getElementById('report-wrap');
+  if(!data.length){wrap.innerHTML='<div class="empty">Nenhum dado disponível</div>';return;}
+  const totH={total:data.reduce((a,h)=>a+h.total,0),informado:data.reduce((a,h)=>a+h.informado,0),pendente:data.reduce((a,h)=>a+h.pendente,0)};
+  wrap.innerHTML=`
+    <div class="card">
+      <table>
+        <thead><tr>
+          <th>Hospital</th><th>Total</th><th>Informados</th><th>Pendentes</th>
+          <th>% Informado</th><th>Tempo Médio</th>
+        </tr></thead>
+        <tbody>
+          ${data.map(h=>`
+          <tr>
+            <td><strong>${h.name}</strong></td>
+            <td class="mono" style="color:var(--blue);text-align:center">${h.total}</td>
+            <td class="mono" style="color:var(--green);text-align:center">${h.informado}</td>
+            <td class="mono" style="color:var(--red);text-align:center">${h.pendente}</td>
+            <td style="text-align:center;font-weight:700;color:${pctColor(pct(h))}">${pct(h)}%</td>
+            <td style="color:var(--amber);text-align:center">${fmtMin(h.avg_response_min)}</td>
+          </tr>`).join('')}
+          <tr style="background:rgba(255,255,255,.04);border-top:2px solid var(--border2)">
+            <td style="font-weight:700">Total Geral</td>
+            <td class="mono" style="color:var(--blue);font-weight:700;text-align:center">${totH.total}</td>
+            <td class="mono" style="color:var(--green);font-weight:700;text-align:center">${totH.informado}</td>
+            <td class="mono" style="color:var(--red);font-weight:700;text-align:center">${totH.pendente}</td>
+            <td style="text-align:center">—</td><td style="text-align:center">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function exportCSV() {
+  if(!reportCache.length){alert('Sem dados para exportar.');return;}
+  const rows=[['Hospital','Total','Informados','Pendentes','% Informado','Tempo Médio']];
+  reportCache.forEach(h=>rows.push([h.name,h.total,h.informado,h.pendente,pct(h)+'%',fmtMin(h.avg_response_min)]));
+  const csv=rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`critlab_consolidado_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+
+loadDashboard();
+</script>
+</body>
+</html>
