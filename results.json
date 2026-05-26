@@ -1,0 +1,38 @@
+[
+  {
+    "id": "fed5df7c-b149-4aca-8c16-25f685dce7c7",
+    "protocol": "RC-20260522-0FB80F",
+    "technician": "teste",
+    "exam": "teste",
+    "patient": "2222-31",
+    "value": "6,8",
+    "created_at": "22/05/2026 06:37:36",
+    "status": "INFORMADO",
+    "notifications": [
+      {
+        "notified_to": "ana",
+        "role": "médico",
+        "notified_at": "22/05/2026 06:37:48",
+        "notes": ""
+      }
+    ]
+  },
+  {
+    "id": "d58cbdf1-b519-4dc7-9041-2d156dbb8b39",
+    "protocol": "RC-20260522-262AF9",
+    "technician": "teste1",
+    "exam": "POTÁSSIO",
+    "patient": "666-66",
+    "value": "6,0",
+    "created_at": "22/05/2026 06:43:52",
+    "status": "INFORMADO",
+    "notifications": [
+      {
+        "notified_to": "aaa",
+        "role": "asd",
+        "notified_at": "22/05/2026 06:44:03",
+        "notes": ""
+      }
+    ]
+  }
+]
